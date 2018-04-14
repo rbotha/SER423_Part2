@@ -4,7 +4,17 @@
             "outputFile": "/Users/ruanbotha/Documents/Git Projects/SER423_Part1/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-v16/values-v16.xml",
             "map": [
                 {
-                    "source": "/Users/ruanbotha/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.1.0.aar/d44e529605c980d96862fbf5ea3f444c/res/values-v16/values-v16.xml",
+                    "source": "/Users/ruanbotha/.gradle/caches/transforms-1/files-1.1/support-compat-26.1.0.aar/ceb06c905d25678e435d47b3014519d9/res/values-v16/values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "65",
+                        "endOffsets": "116"
+                    }
+                },
+                {
+                    "source": "/Users/ruanbotha/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.1.0.aar/89a9b3b6e70da230fdd7b465f33a32d9/res/values-v16/values-v16.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
@@ -20,16 +30,6 @@
                         "endLines": "6",
                         "endColumns": "12",
                         "endOffsets": "289"
-                    }
-                },
-                {
-                    "source": "/Users/ruanbotha/.gradle/caches/transforms-1/files-1.1/support-compat-26.1.0.aar/f4d551aca8d896eaba0847523004c321/res/values-v16/values-v16.xml",
-                    "from": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "55",
-                        "endColumns": "65",
-                        "endOffsets": "116"
                     }
                 }
             ]
