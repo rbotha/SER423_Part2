@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "/Users/ruanbotha/Documents/Git Projects/SER423/app/build/intermediates/incremental/mergeDebugAndroidTestResources/merged.dir/values-v26/values-v26.xml",
+            "outputFile": "/Users/ruanbotha/Documents/Git Projects/SER423_Part1/app/build/intermediates/incremental/mergeDebugAndroidTestResources/merged.dir/values-v26/values-v26.xml",
             "map": [
                 {
                     "source": "/Users/ruanbotha/.gradle/caches/transforms-1/files-1.1/design-26.1.0.aar/2f987ce7b2677ff128d5da773ffc565f/res/values-v26/values-v26.xml",

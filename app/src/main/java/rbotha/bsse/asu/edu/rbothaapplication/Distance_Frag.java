@@ -15,7 +15,31 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
-import java.util.function.DoublePredicate;
+
+/*
+ * Copyright 2018 Ruan Botha,
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Purpose: Assignment for week 5 demonstrating multiple views, database
+ * integration (SQLite), lists, and some maths.
+ *
+ * Ser423 Mobile Applications
+ * see http://pooh.poly.asu.edu/Mobile
+ * @author Ruan Botha rbotha@asu.edu
+ *         Software Engineering, CIDSE, IAFSE, ASU Poly
+ * @version April 2018
+ */
 
 
 /**
@@ -81,13 +105,13 @@ public class Distance_Frag extends android.support.v4.app.Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.fragment_distance_, container, false);
+        final View rootView = inflater.inflate(rbotha.bsse.asu.edu.rbothaapplication.R.layout.fragment_distance_, container, false);
 
-        Button buttonCalculate= (Button) rootView.findViewById(R.id.btnCalculate);
-        final Spinner spnTop = (Spinner) rootView.findViewById(R.id.spnTop);
-        final Spinner spnBottom = (Spinner) rootView.findViewById(R.id.spnBottom);
-        final EditText txtGreat = (EditText) rootView.findViewById(R.id.txtGreatCircle);
-        final EditText txtInitial = (EditText) rootView.findViewById(R.id.txtInitialBearing);
+        Button buttonCalculate= (Button) rootView.findViewById(rbotha.bsse.asu.edu.rbothaapplication.R.id.btnCalculate);
+        final Spinner spnTop = (Spinner) rootView.findViewById(rbotha.bsse.asu.edu.rbothaapplication.R.id.spnTop);
+        final Spinner spnBottom = (Spinner) rootView.findViewById(rbotha.bsse.asu.edu.rbothaapplication.R.id.spnBottom);
+        final EditText txtGreat = (EditText) rootView.findViewById(rbotha.bsse.asu.edu.rbothaapplication.R.id.txtGreatCircle);
+        final EditText txtInitial = (EditText) rootView.findViewById(rbotha.bsse.asu.edu.rbothaapplication.R.id.txtInitialBearing);
 
         final PlaceLibrary library = new PlaceLibrary();
 
@@ -163,11 +187,41 @@ public class Distance_Frag extends android.support.v4.app.Fragment {
     }
 
     public void  calculate(EditText txtGreat, EditText txtInitial, PlaceDescription top, PlaceDescription bottom){
-        Log.e("Selected items", "calculate: " + top.name + " and " + bottom.name);
+
+
+        // variables used in calculation
         double theta1 = Math.toRadians(top.latitude);
         double theta2 = Math.toRadians(bottom.latitude);
         double thetaDelta = Math.toRadians((bottom.latitude - top.latitude));
         double lambdaDelta = Math.toRadians((bottom.longitute - top.longitute));
 
+        /*
+         * Start of great circle calculation code
+         */
+
+        double a = Math.sin(thetaDelta/2) * Math.sin(thetaDelta/2) + Math.cos(theta1) * Math.cos(theta2) *
+                Math.sin(lambdaDelta/2) * Math.sin(lambdaDelta/2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+        Double d = R * c;
+
+        txtGreat.setText(String.format("%.2f", (d*0.000621371)) + "  Miles");
+
+        /*
+         * End of great circle calculation code
+         */
+
+        /*
+         * Start of Initial Bearing code
+         */
+        double y = Math.sin(lambdaDelta) * Math.cos(theta2);
+        double x = Math.cos(theta1) * Math.sin(theta2) - Math.sin(theta1) * Math.cos(theta2) * Math.cos(lambdaDelta);
+
+        double brng = Math.toDegrees(Math.atan2(y, x));
+
+        txtInitial.setText(String.format("%.2f", brng) + "  Degrees");
+        /*
+         * End of Initial Bearing code
+         */
     }
 }
