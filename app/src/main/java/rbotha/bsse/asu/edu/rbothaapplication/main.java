@@ -6,20 +6,24 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import org.json.JSONObject;
 
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /*
  * Copyright 2018 Ruan Botha,
@@ -109,17 +113,26 @@ public class main extends android.support.v4.app.Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
         Log.e("on Create", "onCreateView: On create call" );
 
         db = new DatabaseHelper(context);
 
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         ListView mLstView = (ListView) rootView.findViewById(android.R.id.list);
 
         adapter = new ArrayAdapter<String>(context,android.R.layout.simple_list_item_1,places);
         mLstView.setAdapter(adapter);
+
+
+        Button buttonSync= (Button) rootView.findViewById(R.id.sync);
+
+        buttonSync.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sync(rootView);
+            }
+        });
 
 
         InputStream is = context.getResources().openRawResource(R.raw.places);
@@ -231,6 +244,21 @@ public class main extends android.support.v4.app.Fragment {
             places.add(res.getString(0));
         }
         Log.e("Place", "refreshList: Res is " + places);
+    }
+
+    public void sync(View rootView){
+
+        URL url = null;
+
+        try{
+            android.util.Log.d(this.getClass().getSimpleName(),"I tried at least: ");
+            url = new URL("http://10.0.2.2:8080/");
+            JsonRPCRequestViaHttp request = new JsonRPCRequestViaHttp(url, new Handler(), "getNames", "[ ]");
+            request.start();
+            android.util.Log.d(this.getClass().getSimpleName(),"I tried at least and i made the url: ");
+        }catch (Exception e){
+            android.util.Log.d(this.getClass().getSimpleName(),"Exception in JsonRPC request: "+e.toString());
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
