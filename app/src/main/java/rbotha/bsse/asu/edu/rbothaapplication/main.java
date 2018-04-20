@@ -3,10 +3,12 @@ package rbotha.bsse.asu.edu.rbothaapplication;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -67,6 +69,7 @@ public class main extends android.support.v4.app.Fragment {
 
     private ArrayAdapter<String> adapter;
     private ArrayList<String> places = new ArrayList<String>();
+    private String url;
 
     DatabaseHelper db;
 
@@ -250,13 +253,18 @@ public class main extends android.support.v4.app.Fragment {
 
         URL url = null;
 
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String urlStr = sharedPrefs.getString("pref_url",getString(R.string.defaulturl));
+
         try{
             android.util.Log.d(this.getClass().getSimpleName(),"I tried at least: ");
-            url = new URL("http://10.0.2.2:8080/");
+            //rootView.findViewById(R.id.)
+            url = new URL(urlStr);
             JsonRPCRequestViaHttp request = new JsonRPCRequestViaHttp(url, new Handler(), "getNames", "[ ]");
             request.start();
             android.util.Log.d(this.getClass().getSimpleName(),"I tried at least and i made the url: ");
         }catch (Exception e){
+            Toast.makeText(context, "Unable to connect to:  " + urlStr, Toast.LENGTH_SHORT).show();
             android.util.Log.d(this.getClass().getSimpleName(),"Exception in JsonRPC request: "+e.toString());
         }
     }

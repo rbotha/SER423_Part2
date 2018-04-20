@@ -12,5 +12,9 @@
     <string name="pref_url">Enter the URL for the JsonRPC host</string>
     <string name="pref_url_summary">http://host:port</string>
     <string name="menu_settings">Settings</string>
+    <string name="title_activity_maps">Maps</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

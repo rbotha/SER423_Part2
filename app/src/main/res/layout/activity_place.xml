@@ -19,14 +19,14 @@
     <EditText
         android:id="@+id/txtname"
         android:layout_width="151dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="34dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="354dp"
         android:layout_marginEnd="31dp"
         android:layout_marginTop="36dp"
 
         android:inputType="textPersonName"
         android:text="Name"
-        app:layout_constraintBottom_toBottomOf="@+id/textView2"
+        app:layout_constraintBottom_toTopOf="@+id/btnMap"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -193,5 +193,16 @@
         android:text="Delete"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btnMap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="171dp"
+        android:text="Map"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtname" />
 
 </android.support.constraint.ConstraintLayout>

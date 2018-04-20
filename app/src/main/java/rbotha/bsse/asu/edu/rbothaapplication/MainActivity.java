@@ -43,7 +43,7 @@ import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity implements Add_Frag.OnFragmentInteractionListener, main.OnFragmentInteractionListener, Distance_Frag.OnFragmentInteractionListener {
 
-
+    private String url;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -81,6 +81,8 @@ public class MainActivity extends AppCompatActivity implements Add_Frag.OnFragme
         Toolbar mtoolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mtoolbar);
 
+        url = logUserSettings();
+
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
@@ -104,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements Add_Frag.OnFragme
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        logUserSettings();
+        url = logUserSettings();
 
     }
 
@@ -119,13 +121,11 @@ public class MainActivity extends AppCompatActivity implements Add_Frag.OnFragme
         return super.onOptionsItemSelected(item);
     }
 
-    private void logUserSettings() {
+    private String logUserSettings() {
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean http = sharedPrefs.getBoolean("pref_http_or_tcp",false);
-        android.util.Log.w(this.getClass().getSimpleName(),"http connection is: "+http);
         String url = sharedPrefs.getString("pref_url",getString(R.string.defaulturl));
         android.util.Log.w(this.getClass().getSimpleName(),"JsonRPC host is: "+url);
-        //this.urlET.setText(url);
+        return url;
     }
 
     @Override

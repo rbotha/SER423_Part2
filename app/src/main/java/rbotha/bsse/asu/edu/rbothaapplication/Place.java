@@ -100,6 +100,16 @@ public class Place extends AppCompatActivity {
             }
         });
 
+        Button btnMap= (Button) findViewById(R.id.btnMap);
+        btnMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), Maps.class);
+                startActivityForResult(intent, 1);
+
+            }
+        });
+
     }
 
     private void Delete(String oldName) {
