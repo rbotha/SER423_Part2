@@ -3,5 +3,14 @@
     <string name="title_home">Home</string>
     <string name="title_add">Add</string>
     <string name="title_distance">Distance</string>
+    <string name="menu_action_setting">Setting</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="defaulturl">http://10.0.2.2:8080</string>
+    <string name="pref_server">Server Preferences</string>
+    <string name="pref_http_or_tcp">Use Http Connections</string>
+    <string name="pref_http_or_tcp_summary">if not checked, enter tcp:// url below</string>
+    <string name="pref_url">Enter the URL for the JsonRPC host</string>
+    <string name="pref_url_summary">http://host:port</string>
+    <string name="menu_settings">Settings</string>
 
 </resources>

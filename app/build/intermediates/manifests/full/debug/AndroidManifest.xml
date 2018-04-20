@@ -30,6 +30,10 @@
             </intent-filter>
         </activity>
         <activity android:name="rbotha.bsse.asu.edu.rbothaapplication.Place" />
+        <activity
+            android:name="rbotha.bsse.asu.edu.rbothaapplication.Settings"
+            android:label="@string/title_activity_settings"
+            android:theme="@style/AppTheme" />
 
         <meta-data
             android:name="android.support.VERSION"
