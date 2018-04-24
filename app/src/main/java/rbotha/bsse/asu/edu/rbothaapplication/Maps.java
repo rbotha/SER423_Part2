@@ -1,21 +1,18 @@
 package rbotha.bsse.asu.edu.rbothaapplication;
 
 import android.Manifest;
-import android.app.Dialog;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -39,6 +36,31 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
+/*
+ * Copyright 2018 Ruan Botha,
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Purpose: Assignment for week 5 demonstrating multiple views, database
+ * integration (SQLite), lists, and some maths.
+ *
+ * Ser423 Mobile Applications
+ * see http://pooh.poly.asu.edu/Mobile
+ * @author Ruan Botha rbotha@asu.edu
+ *         Software Engineering, CIDSE, IAFSE, ASU Poly
+ * @version April 2018
+ */
 
 public class Maps extends AppCompatActivity implements OnMapReadyCallback, Add_Frag.OnFragmentInteractionListener,
         GoogleMap.OnMapLongClickListener,
@@ -151,6 +173,12 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback, Add_F
 
                         dbCursor.execSQL(insertCommand);
                         gMap.addMarker(marker);
+                        Intent place = new Intent(context.getApplicationContext(),Place.class);
+                        place.putExtra("name", dialogEditText.getText().toString());
+                        place.putExtra("latitude", newLatitude);
+                        place.putExtra("longitude", newLongitude);
+                        startActivityForResult(place, 1);
+
                     }
                 });
                 alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -259,6 +287,18 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback, Add_F
                             + newPlaceName + "', " + newLatitude + ", " + newLongitude + ");";
 
                     dbCursor.execSQL(insertCommand);
+
+                    Intent intent = new Intent();
+                    if (getParent() == null) {
+                        setResult(Activity.RESULT_OK, intent);
+                    } else {
+                        getParent().setResult(Activity.RESULT_OK, intent);
+                    }
+                    Intent place = new Intent(context.getApplicationContext(),Place.class);
+                    place.putExtra("name", newPlaceName);
+                    place.putExtra("latitude", newLatitude);
+                    place.putExtra("longitude", newLongitude);
+                    startActivityForResult(place, 1);
                 }
                 else {
                     Toast.makeText(this, "Name Required", Toast.LENGTH_SHORT).show();
