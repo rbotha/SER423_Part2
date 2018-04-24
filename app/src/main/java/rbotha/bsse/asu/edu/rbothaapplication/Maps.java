@@ -1,16 +1,21 @@
 package rbotha.bsse.asu.edu.rbothaapplication;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -32,9 +37,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Maps extends AppCompatActivity implements OnMapReadyCallback,
+public class Maps extends AppCompatActivity implements OnMapReadyCallback, Add_Frag.OnFragmentInteractionListener,
         GoogleMap.OnMapLongClickListener,
         DialogInterface.OnClickListener {
 
@@ -47,10 +53,12 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback,
 
     DatabaseHelper db;
     SQLiteDatabase dbCursor;
+    ArrayList<MarkerOptions> markerArr = new ArrayList<MarkerOptions>();
 
     private String selectedPlace;
 
     private HashMap<String, LatLng> places;
+    private ArrayList<String> list  = new ArrayList<String>();
 
     static final LatLng myPos = new LatLng(40, -79);
 
@@ -64,6 +72,8 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback,
         setContentView(R.layout.activity_maps);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        list = getIntent().getStringArrayListExtra("list");
 
         Log.w(TAG, "onCreate");
         context = this;
@@ -109,7 +119,50 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback,
         gMap.setTrafficEnabled(true);
         gMap.setBuildingsEnabled(true);
         gMap.getUiSettings().setZoomControlsEnabled(true);
+        gMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng point) {
 
+                newPoint = point;
+
+                dialogEditText = new EditText(getApplicationContext());
+                dialogEditText.setInputType(InputType.TYPE_TEXT_VARIATION_LONG_MESSAGE);
+
+                dialogCallBox = "add";
+                AlertDialog.Builder alert = new AlertDialog.Builder(context);
+                alert.setTitle("Add Place?");
+                alert.setView(dialogEditText);
+                alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Double newLatitude = newPoint.latitude;
+                        Double newLongitude = newPoint.longitude;
+                        MarkerOptions marker = new MarkerOptions().position(
+                                new LatLng(newPoint.latitude, newPoint.longitude))
+                                .title(dialogEditText.getText().toString())
+                                .snippet("Long Press to Edit");
+                        String insertCommand = "insert into pl_places (NAME, LATITUDE, LONGITUDE) values ('"
+                                + dialogEditText.getText().toString() + "', " + newLatitude + ", " + newLongitude + ");";
+
+                        gMap.addMarker(new MarkerOptions()
+                                .position(newPoint)
+                                .title(dialogEditText.getText().toString())
+                                .snippet("Long Press to Edit"));
+
+                        dbCursor.execSQL(insertCommand);
+                        gMap.addMarker(marker);
+                    }
+                });
+                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                });
+                alert.show();
+
+            }
+        });
         gMap.setOnMapLongClickListener(this);
         android.util.Log.d(this.getClass().toString(), "Loading your map");
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -139,11 +192,14 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback,
         }
 
         for (String placeName: places.keySet()) {
-            gMap.addMarker(new MarkerOptions()
+            MarkerOptions markerOpts = new MarkerOptions()
                     .position(places
                             .get(placeName))
                     .title(placeName)
-                    .snippet("Long Press to Edit"));
+                    .snippet("Long Press to Edit");
+
+            markerArr.add(markerOpts);
+            gMap.addMarker(markerOpts);
         }
 
         gMap.setOnInfoWindowLongClickListener(new GoogleMap.OnInfoWindowLongClickListener() {
@@ -153,7 +209,8 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback,
 
                 dialogCallBox = "edit";
                 AlertDialog.Builder alert = new AlertDialog.Builder(context);
-                alert.setTitle("Edit this Place?");
+                alert.setTitle("Edit this Place?    " + selectedPlace);
+                alert.setTitle(selectedPlace);
                 alert.setPositiveButton("OK", (DialogInterface.OnClickListener) context);
                 alert.setNegativeButton("Cancel", (DialogInterface.OnClickListener) context);
                 alert.show();
@@ -166,17 +223,21 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback,
     public void onMapLongClick(LatLng latLng) {
         newPoint = latLng;
 
-        dialogEditText = new EditText(this);
-        dialogEditText.setInputType(InputType.TYPE_CLASS_TEXT);
-
-        dialogCallBox = "add";
+        dialogCallBox = "edit";
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle("Add a New Place?");
-        alert.setView(dialogEditText);
+        for(MarkerOptions marker : markerArr) {
+            if(Math.abs(marker.getPosition().latitude - newPoint.latitude) < 5 && Math.abs(marker.getPosition().longitude - newPoint.longitude) < 5) {
+                selectedPlace = marker.getTitle();
+                break;
+            }
+        }
+        alert.setTitle("Edit Place?    " + selectedPlace);
         alert.setPositiveButton("OK", this);
         alert.setNegativeButton("Cancel", this);
         alert.show();
     }
+
+
 
     @Override
     public void onClick(DialogInterface dialogInterface, int i) {
@@ -204,15 +265,41 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback,
                 }
             }
             else if (dialogCallBox == "edit") {
-                //TODO CALL THE FRAGMENT ADD AND SEND DATA.
-                Intent intent = new Intent(context, Add_Frag.class);
-                intent.putExtra("placeName", selectedPlace);
-                intent.putExtra("callingActivity", "MapsActivity");
-                startActivityForResult(intent, 1);
+
+                Intent place = new Intent(context.getApplicationContext(),Place.class);
+                for(MarkerOptions marker : markerArr) {
+                    if (Math.abs(marker.getPosition().latitude - newPoint.latitude) < 5 && Math.abs(marker.getPosition().longitude - newPoint.longitude) < 5) {
+
+                        String query = "select * from pl_places where NAME = '" + marker.getTitle() + "';";
+
+                        Cursor res = db.getPlace(marker.getTitle());
+
+                        PlaceDescription placeDesc = new PlaceDescription(res.getString(0), res.getString(1),
+                                res.getString(2), res.getString(3), res.getString(4),
+                                res.getDouble(5), res.getDouble(6), res.getDouble(7));
+
+
+                        place.putExtra("name", placeDesc.name);
+                        place.putExtra("address-title", placeDesc.addressTitle);
+                        place.putExtra("address-street", placeDesc.addressStreet);
+                        place.putExtra("elevation", placeDesc.elevation);
+                        place.putExtra("latitude", placeDesc.latitude);
+                        place.putExtra("longitude", placeDesc.longitute);
+                        place.putExtra("description", placeDesc.description);
+                        place.putExtra("category", placeDesc.category);
+                        startActivityForResult(place, 1);
+                        break;
+                    }
+                }
             }
         }
         else if (i == DialogInterface.BUTTON_NEGATIVE) {
-            Toast.makeText(this, "No Action", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Cancelled", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 }

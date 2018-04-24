@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 /*
  * Copyright 2018 Ruan Botha,
@@ -88,6 +89,13 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor res = db.rawQuery("select * from " + TABLE_NAME, null);
         return res;
+    }
+
+    public Cursor getPlace(String place){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor res = db.rawQuery("select * from pl_places where NAME LIKE '" + place + "'", null);
+        Log.d("database", "getPlace: " + place);
+        return  res;
     }
 
     public int updateData(String oldName, String name, String description, String category,

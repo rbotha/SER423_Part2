@@ -105,6 +105,7 @@ public class Place extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), Maps.class);
+                intent.putStringArrayListExtra("list", list);
                 startActivityForResult(intent, 1);
 
             }
