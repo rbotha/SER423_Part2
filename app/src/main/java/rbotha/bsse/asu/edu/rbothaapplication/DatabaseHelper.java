@@ -93,7 +93,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
     public Cursor getPlace(String place){
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("select * from pl_places where NAME LIKE '" + place + "'", null);
+        Cursor res = db.rawQuery("select * from pl_places where NAME = '" + place + "'", null);
         Log.d("database", "getPlace: " + place);
         return  res;
     }
@@ -120,5 +120,11 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     public int deleteData (String oldName){
         SQLiteDatabase db = this.getWritableDatabase();
         return db.delete(TABLE_NAME,"NAME = ?", new String[] {String.valueOf(oldName)});
+    }
+
+    public Cursor getNotIn(String notInSQL){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor res = db.rawQuery(notInSQL, null);
+        return  res;
     }
 }

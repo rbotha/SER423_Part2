@@ -226,11 +226,9 @@ public class main extends android.support.v4.app.Fragment {
         places.clear();
         library.clear();
         adapter.clear();
-        Log.e("Adapt" ,"onActivityResult: Imi clear?  "  + adapter.getCount());
         refreshList(res);
-        //dapter.addAll(refreshList(res));
         adapter.notifyDataSetChanged();
-
+        //Log.e("Adapt" ,"onActivityResult: Imi clear?  "  + adapter.getCount());
 
 
     }
@@ -240,13 +238,11 @@ public class main extends android.support.v4.app.Fragment {
         library.clear();
 
         while(res.moveToNext()){
-            Log.e("Place", "refreshList: Res is " + res.getString(0));
             library.addPlace(new PlaceDescription(res.getString(0),res.getString(1),
                     res.getString(2),res.getString(3),res.getString(4),
                     res.getDouble(5),res.getDouble(6),res.getDouble(7)));
             places.add(res.getString(0));
         }
-        Log.e("Place", "refreshList: Res is " + places);
     }
 
     public void sync(View rootView){
@@ -260,9 +256,17 @@ public class main extends android.support.v4.app.Fragment {
             android.util.Log.d(this.getClass().getSimpleName(),"I tried at least: ");
             //rootView.findViewById(R.id.)
             url = new URL(urlStr);
-            JsonRPCRequestViaHttp request = new JsonRPCRequestViaHttp(url, new Handler(), "getNames", "[ ]");
+            JsonRPCRequestViaHttp request = new JsonRPCRequestViaHttp(url, new Handler(), "getNames", "[ ]", db, context);
             request.start();
             android.util.Log.d(this.getClass().getSimpleName(),"I tried at least and i made the url: ");
+            request.join();
+            Cursor res = db.getAllData();
+            places.clear();
+            library.clear();
+            adapter.clear();
+            refreshList(res);
+            adapter.notifyDataSetChanged();
+
         }catch (Exception e){
             Toast.makeText(context, "Unable to connect to:  " + urlStr, Toast.LENGTH_SHORT).show();
             android.util.Log.d(this.getClass().getSimpleName(),"Exception in JsonRPC request: "+e.toString());

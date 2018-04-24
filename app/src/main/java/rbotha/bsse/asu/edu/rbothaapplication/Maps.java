@@ -273,11 +273,15 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback, Add_F
                         String query = "select * from pl_places where NAME = '" + marker.getTitle() + "';";
 
                         Cursor res = db.getPlace(marker.getTitle());
-
-                        PlaceDescription placeDesc = new PlaceDescription(res.getString(0), res.getString(1),
-                                res.getString(2), res.getString(3), res.getString(4),
-                                res.getDouble(5), res.getDouble(6), res.getDouble(7));
-
+                        PlaceDescription placeDesc = null;
+                        if(res.getCount() > 0){
+                            while(res.moveToNext()) {
+                                placeDesc = new PlaceDescription(res.getString(0), res.getString(1),
+                                        res.getString(2), res.getString(3), res.getString(4),
+                                        res.getDouble(5), res.getDouble(6), res.getDouble(7));
+                                break;
+                            }
+                        }
 
                         place.putExtra("name", placeDesc.name);
                         place.putExtra("address-title", placeDesc.addressTitle);

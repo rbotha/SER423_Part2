@@ -12,7 +12,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -53,10 +57,14 @@ public class JsonRPCRequestViaHttp extends Thread {
     private String method;
     private String requestData;
     private Handler handler;
+    private DatabaseHelper db;
+    private Context context;
     //private MainActivity parent;
 
-    public JsonRPCRequestViaHttp(URL url, Handler handler, String method, String parmsArray){
+    public JsonRPCRequestViaHttp(URL url, Handler handler, String method, String parmsArray, DatabaseHelper db, Context context){
         this.url =url;
+        this.db = db;
+        this.context = context;
         //this.parent = parent;
         this.method = method;
         this.handler = handler;
@@ -73,15 +81,55 @@ public class JsonRPCRequestViaHttp extends Thread {
                 JSONObject jo = new JSONObject(respData);
                 JSONArray ja = jo.getJSONArray("result");
                 ArrayList<String> al = new ArrayList<String>();
+                ArrayList<String> dbList = new ArrayList<String>();
+                String dbSelectString = "select * from pl_places where NAME NOT IN (";
                 for(int i=0; i< ja.length(); i++){
                     al.add(ja.getString(i));
+                    int temp = i;
+                    temp +=1;
+                    if(temp != ja.length()){dbSelectString += "'"+ja.getString(i)+"',";}
+                    else{dbSelectString += "'"+ja.getString(i)+"');";}
                 }
-                String[] arr = al.toArray(new String[0]);
-                //handler.post(new StudentSpinnerUpdater(parent,arr, handler, url));
+                //String[] arr = al.toArray(new String[0]);
+                Cursor res = db.getNotIn(dbSelectString);
+                if(res.getCount() > 0){
+                    while(res.moveToNext()){
+                        URL url = null;
+
+                        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+                        String urlStr = sharedPrefs.getString("pref_url",String.valueOf(R.string.defaulturl));
+                        url = new URL(urlStr);
+
+                        PlaceDescription placeDesc = new PlaceDescription(res.getString(0), res.getString(1),
+                                res.getString(2), res.getString(3), res.getString(4),
+                                res.getDouble(5), res.getDouble(6), res.getDouble(7));
+                        android.util.Log.d(this.getClass().getSimpleName(),"Place Descript: "+placeDesc.toJSonString());
+                        JsonRPCRequestViaHttp request = new JsonRPCRequestViaHttp(url, handler, "add",
+                                "["+placeDesc.toJSonString()+"]",db, context);
+                        request.start();
+                    }
+                }
+                res = db.getAllData();
+                while (res.moveToNext()){
+                    dbList.add(res.getString(0));
+                }
+                for(String aStr: al){
+                    if(!dbList.contains(aStr)){
+                        String respGetData = post(url, headers, "{ \"jsonrpc\":\"2.0\", \"method\":\"get\", \"params\":["+aStr+
+                                "],\"id\":3}");
+                        JSONObject retrJ = new JSONObject(respGetData);
+                        JSONObject  retrA = retrJ.getJSONObject("result");
+
+                        android.util.Log.d(this.getClass().getSimpleName(),"Place Descript: "+ retrA.toString());
+                        PlaceDescription place = new PlaceDescription(retrA.toString());
+                        db.insertData(aStr, place.description, place.category, place.addressTitle, place.addressStreet, place.elevation, place.latitude, place.longitute);
+                    }
+                }
+                String save = post(url, headers, "{ \"jsonrpc\":\"2.0\", \"method\":\"saveToJsonFile\", \"params\":[ ],\"id\":3}");
             }else if(method.equals("get")){
-                JSONObject jo = new JSONObject(respData);
-                //Student aStud = new Student(jo.getJSONObject("result"));
-                //handler.post(new StudentInfoUpdater(parent,aStud));
+                //meh
+            }else if(method.equals("add") || method.equals("remove")){
+                String save = post(url, headers, "{ \"jsonrpc\":\"2.0\", \"method\":\"saveToJsonFile\", \"params\":[ ],\"id\":3}");
             }
         }catch (Exception ex){
             android.util.Log.d(this.getClass().getSimpleName(),"Exception in JsonRPC request: "+ex.toString());

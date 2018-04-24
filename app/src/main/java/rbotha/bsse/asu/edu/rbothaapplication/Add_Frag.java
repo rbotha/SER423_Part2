@@ -2,15 +2,20 @@ package rbotha.bsse.asu.edu.rbothaapplication;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import java.net.URL;
 import java.util.ArrayList;
 
 /*
@@ -181,6 +186,12 @@ public class Add_Frag extends android.support.v4.app.Fragment {
         EditText txtLatitude = (EditText) rootView.findViewById(R.id.txtLatitude);
         EditText txtElevation = (EditText) rootView.findViewById(R.id.txtElevation);
 
+        PlaceDescription place = new PlaceDescription(txtName.getText().toString(), txtDescription.getText().toString(),
+                txtCategory.getText().toString(), txtAddressTitle.getText().toString(),
+                txtAddress.getText().toString(), Double.parseDouble(txtElevation.getText().toString()),
+                Double.parseDouble(txtLatitude.getText().toString()), Double.parseDouble(txtLongitude.getText().toString()));
+
+
         if(db.insertData(txtName.getText().toString(),txtDescription.getText().toString(),txtCategory.getText().toString(),txtAddressTitle.getText().toString(),
                     txtAddress.getText().toString(),Double.parseDouble(txtElevation.getText().toString()),Double.parseDouble(txtLatitude.getText().toString()),
                     Double.parseDouble(txtLongitude.getText().toString()))){
@@ -195,9 +206,18 @@ public class Add_Frag extends android.support.v4.app.Fragment {
             txtElevation.getText().clear();
         }
 
+        URL url = null;
 
-
-
-
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String urlStr = sharedPrefs.getString("pref_url",getString(R.string.defaulturl));
+        try {
+            url = new URL(urlStr);
+            JsonRPCRequestViaHttp request = new JsonRPCRequestViaHttp(url, new Handler(), "add", "[" +place.toJSonString() + "]", db, context);
+            request.start();
+            request.join();
+        }catch(Exception ex){
+            Toast.makeText(context, "Unable to connect to:  " + urlStr, Toast.LENGTH_SHORT).show();
+            android.util.Log.d(this.getClass().getSimpleName(),"Exception in JsonRPC request: "+ex.toString());
+        }
     }
 }

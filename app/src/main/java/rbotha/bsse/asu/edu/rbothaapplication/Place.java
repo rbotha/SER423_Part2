@@ -1,13 +1,18 @@
 package rbotha.bsse.asu.edu.rbothaapplication;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import java.net.URL;
 import java.util.ArrayList;
 
 
@@ -123,6 +128,22 @@ public class Place extends AppCompatActivity {
 
         Log.e("DELETE", "Delete: rows were Delete: " + deleted);
 
+        URL url = null;
+
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String urlStr = sharedPrefs.getString("pref_url",getString(R.string.defaulturl));
+        try {
+            url = new URL(urlStr);
+            JsonRPCRequestViaHttp request = new JsonRPCRequestViaHttp(url, new Handler(), "remove", "[" +oldName + "]", db, getApplicationContext());
+            request.start();
+            request.join();
+        }catch(Exception ex){
+            Toast.makeText(getApplicationContext(), "Unable to connect to:  " + urlStr, Toast.LENGTH_SHORT).show();
+            android.util.Log.d(this.getClass().getSimpleName(),"Exception in JsonRPC request: "+ex.toString());
+        }
+
+
+
         setResult(RESULT_OK, intent);
         finish();
     }
@@ -144,6 +165,28 @@ public class Place extends AppCompatActivity {
                 txtAddressTitle.getText().toString(), txtAddress.getText().toString(), Double.parseDouble(txtElevation.getText().toString()),
                 Double.parseDouble(txtLatitude.getText().toString()), Double.parseDouble(txtLongitude.getText().toString()));
 
+        URL url = null;
+
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String urlStr = sharedPrefs.getString("pref_url",getString(R.string.defaulturl));
+        try {
+            url = new URL(urlStr);
+            JsonRPCRequestViaHttp request = new JsonRPCRequestViaHttp(url, new Handler(), "remove", "[" +place.name + "]", db, getApplicationContext());
+            request.start();
+            request.join();
+
+            PlaceDescription newPlace = new PlaceDescription(txtName.getText().toString(), txtDescription.getText().toString(),
+                    txtCategory.getText().toString(), txtAddressTitle.getText().toString(),
+                    txtAddress.getText().toString(), Double.parseDouble(txtElevation.getText().toString()),
+                    Double.parseDouble(txtLatitude.getText().toString()), Double.parseDouble(txtLongitude.getText().toString()));
+
+            request = new JsonRPCRequestViaHttp(url, new Handler(), "add", "[" +newPlace.toJSonString()+ "]", db, getApplicationContext());
+            request.start();
+            request.join();
+        }catch(Exception ex){
+            Toast.makeText(getApplicationContext(), "Unable to connect to:  " + urlStr, Toast.LENGTH_SHORT).show();
+            android.util.Log.d(this.getClass().getSimpleName(),"Exception in JsonRPC request: "+ex.toString());
+        }
 
 
     }
